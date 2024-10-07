@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 
 public record ViewNodeBuilder<T extends Node>(@Nonnull T elem) {
 
+    @Nonnull
     public static <T extends Node> ViewNodeBuilder<T> builder(@Nonnull T elem) {
         return new ViewNodeBuilder<>(elem);
     }

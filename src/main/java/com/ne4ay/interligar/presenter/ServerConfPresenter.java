@@ -1,6 +1,7 @@
 package com.ne4ay.interligar.presenter;
 
 import com.ne4ay.interligar.InterligarApplication;
+import com.ne4ay.interligar.udp.ChannelState;
 import com.ne4ay.interligar.udp.UDPServer;
 import com.ne4ay.interligar.view.ServerConfView;
 import javafx.application.Platform;
@@ -8,6 +9,7 @@ import javafx.application.Platform;
 import javax.annotation.Nonnull;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.ne4ay.interligar.utils.InterligarUtils.wrapInPlatformCall;
@@ -15,12 +17,11 @@ import static com.ne4ay.interligar.utils.InterligarUtils.wrapInPlatformCall;
 public class ServerConfPresenter {
 
     private final ServerConfView view;
+    private final ChannelState channelState;
 
-    private volatile UDPServer udpServer;
-    private volatile CompletableFuture<Void> udpChannelFuture = CompletableFuture.completedFuture(null);
-
-    public ServerConfPresenter(@Nonnull ServerConfView view) {
+    public ServerConfPresenter(@Nonnull ServerConfView view, @Nonnull ChannelState channelState) {
         this.view = view;
+        this.channelState = channelState;
         init();
     }
 
@@ -33,8 +34,8 @@ public class ServerConfPresenter {
         this.view.setStartServerButtonListener(this::onStartServerButtonClick);
     }
 
-    private void setServerInfoText(@Nonnull String text) {
-        this.view.setServerInfoText(text);
+    private ServerConfView setServerInfoText(@Nonnull String text) {
+        return this.view.setServerInfoText(text);
     }
 
     private void onStartServerButtonClick() {
@@ -43,37 +44,45 @@ public class ServerConfPresenter {
             //validation
             return;
         }
+        setServerInfoText("Starting the server...");
+        channelState.openChannel(
+            () -> createUdpServer(portString),
+            this::runServer);
+    }
+
+    private CompletableFuture<Void> runServer(@Nonnull Runnable server) {
+        return CompletableFuture.runAsync(server, InterligarApplication.EXECUTOR)
+            .exceptionally(ex -> {
+                Platform.runLater(() ->
+                    setServerInfoText("Server error: " + ex.getMessage())
+                );
+                return null;
+            });
+    }
+
+    private Optional<UDPServer> createUdpServer(@Nonnull String portString) {
         try {
-            setServerInfoText("Starting the server...");
-                this.udpServer = new UDPServer(
-                    Integer.parseInt(portString),
-                    wrapInPlatformCall(() -> {
-                        setServerInfoText("Server has started!");
-                        this.view.setStartServerButtonListener(this::shutDownServer);
-                        this.view.setStartServerButtonText("Shutdown server");
-                    }),
-                    (address) -> Platform.runLater(() -> {
-                        setServerInfoText("Client " + address.getRepresentation() + " has been connected.");
-                    }),
-                    wrapInPlatformCall(() -> {
-                        this.view.setStartServerButtonListener(this::onStartServerButtonClick);
-                        this.view.setStartServerButtonText("Start server");
-                        this.view.setServerInfoText("Server is not running");
-                    }));
-                this.udpChannelFuture = CompletableFuture.runAsync(this.udpServer, InterligarApplication.EXECUTOR)
-                    .exceptionally(ex -> {
-                        setServerInfoText("Server error: " + ex.getMessage());
-                        return null;
-                    });
+            return Optional.of(new UDPServer(
+                Integer.parseInt(portString),
+                wrapInPlatformCall(() ->
+                    setServerInfoText("Server has started!")
+                        .setStartServerButtonListener(this::shutDownServer)
+                        .setStartServerButtonText("Shutdown server")),
+                (address) -> Platform.runLater(() -> {
+                    setServerInfoText("Client " + address.getRepresentation() + " has been connected.");
+                }),
+                wrapInPlatformCall(() ->
+                    setServerInfoText("Server is not running")
+                        .setStartServerButtonListener(this::onStartServerButtonClick)
+                        .setStartServerButtonText("Start server"))
+            ));
         } catch (SocketException e) {
             setServerInfoText("Unable to start server! Error:" + e);
+            return Optional.empty();
         }
     }
 
     private void shutDownServer() {
-        if (this.udpServer != null) {
-            this.udpServer.close();
-            this.udpChannelFuture.join();
-        }
+        channelState.shutdownChannel();
     }
 }

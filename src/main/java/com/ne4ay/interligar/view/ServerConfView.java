@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 
 import javax.annotation.Nonnull;
 
+import static com.ne4ay.interligar.FieldValidationRules.IS_ACCEPTABLE_PORT_INPUT;
 import static com.ne4ay.interligar.FieldValidationRules.LENGTH_LESSER_THEN;
 import static com.ne4ay.interligar.FieldValidationRules.MUST_CONTAIN_ONLY_NUMBERS;
 import static com.ne4ay.interligar.utils.InterligarUtils.DEFAULT_PORT;
@@ -19,7 +20,7 @@ import static com.ne4ay.interligar.view.ViewUtils.addChildren;
 import static javafx.geometry.Pos.CENTER_LEFT;
 import static javafx.geometry.Pos.TOP_CENTER;
 
-public class ServerConfView implements View {
+public class ServerConfView implements View<VBox> {
 
     private final VBox root;
     private final Label titleText;
@@ -43,7 +44,7 @@ public class ServerConfView implements View {
         this.portField = new TextField(DEFAULT_PORT);
         addChildren(serverAddressLine,
             ipText, portField);
-        this.portValidatedField = new ValidatedField(portField, MUST_CONTAIN_ONLY_NUMBERS.and(LENGTH_LESSER_THEN(6)));
+        this.portValidatedField = new ValidatedField(portField, IS_ACCEPTABLE_PORT_INPUT);
         confPortField(portField);
         this.serverInfoText = new Label("Server is not running");
         this.startServerButton = createStartServerButton();
@@ -62,16 +63,19 @@ public class ServerConfView implements View {
         return this;
     }
 
-    public void setStartServerButtonText(@Nonnull String text) {
+    public ServerConfView setStartServerButtonText(@Nonnull String text) {
         this.startServerButton.setText(text);
+        return this;
     }
 
-    public void setServerInfoText(@Nonnull String text) {
+    public ServerConfView setServerInfoText(@Nonnull String text) {
         this.serverInfoText.setText(text);
+        return this;
     }
 
-    public void setIpText(@Nonnull String text) {
+    public ServerConfView setIpText(@Nonnull String text) {
         this.ipText.setText(text);
+        return this;
     }
 
     @Nonnull
@@ -109,7 +113,7 @@ public class ServerConfView implements View {
 
     @Nonnull
     @Override
-    public Node getAsNode() {
+    public VBox getAsNode() {
         return root;
     }
 }

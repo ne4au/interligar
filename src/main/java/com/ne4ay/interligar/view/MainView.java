@@ -17,10 +17,11 @@ import static com.ne4ay.interligar.view.ViewUtils.LIGHT_GRAY_BACKGROUND;
 import static com.ne4ay.interligar.view.ViewUtils.PADDING_5;
 import static com.ne4ay.interligar.view.ViewUtils.WHITE_BACKGROUND;
 import static com.ne4ay.interligar.view.ViewUtils.addChildren;
+import static com.ne4ay.interligar.view.ViewUtils.removeChildren;
 import static javafx.geometry.Pos.CENTER_LEFT;
 import static javafx.geometry.Pos.TOP_CENTER;
 
-public class MainView implements View {
+public class MainView implements View<VBox> {
 
     private final VBox root;
     private final HBox header;
@@ -44,7 +45,7 @@ public class MainView implements View {
 
         this.serverConfView = createServerConfView();
         this.clientConfView = createClientConfView();
-        addChildren(root, serverConfView.getAsNode(), clientConfView.getAsNode());
+        addChildren(root, serverConfView.getAsNode());
     }
 
     @Nonnull
@@ -69,8 +70,8 @@ public class MainView implements View {
         this.currentMode = CurrentMode.SERVER;
         setTabActive(this.serverButton);
         setTabInActive(this.clientButton);
-        this.clientConfView.getAsNode().setVisible(false);
-        this.serverConfView.getAsNode().setVisible(true);
+        removeChildren(root, clientConfView);
+        addChildren(root, serverConfView);
     }
 
     private void changeToClientMode() {
@@ -80,8 +81,8 @@ public class MainView implements View {
         this.currentMode = CurrentMode.CLIENT;
         setTabActive(this.clientButton);
         setTabInActive(this.serverButton);
-        this.serverConfView.getAsNode().setVisible(false);
-        this.clientConfView.getAsNode().setVisible(true);
+        removeChildren(root, serverConfView);
+        addChildren(root, clientConfView);
     }
 
     private void setTabActive(@Nonnull Button button) {
@@ -145,7 +146,7 @@ public class MainView implements View {
 
     @Nonnull
     @Override
-    public Node getAsNode() {
+    public VBox getAsNode() {
         return this.root;
     }
 

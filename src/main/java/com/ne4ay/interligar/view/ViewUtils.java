@@ -11,6 +11,10 @@ import javafx.scene.layout.Pane;
 
 import javax.annotation.Nonnull;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
 import static javafx.scene.layout.BorderStrokeStyle.SOLID;
 import static javafx.scene.paint.Color.BLACK;
 import static javafx.scene.paint.Color.GAINSBORO;
@@ -69,10 +73,40 @@ public final class ViewUtils {
 
     @Nonnull
     public static <T extends Pane> T addChildren(@Nonnull T pane, @Nonnull Node ... nodes) {
-        ObservableList<Node> children = pane.getChildren();
-        for (var node : nodes) {
-            children.add(node);
-        }
+        return addChildren(pane, Arrays.asList(nodes));
+    }
+
+    @Nonnull
+    public static <T extends Pane> T addChildren(@Nonnull T pane, @Nonnull List<? extends Node> nodes) {
+        pane.getChildren().addAll(nodes);
+        return pane;
+    }
+
+    @Nonnull
+    public static <T extends Pane> T addChildren(@Nonnull T pane, @Nonnull View ... nodes) {
+        return addChildrenViews(pane, Arrays.stream(nodes));
+    }
+
+    @Nonnull
+    public static <T extends Pane> T addChildrenViews(@Nonnull T pane, @Nonnull List<? extends View> nodes) {
+        return addChildrenViews(pane, nodes.stream());
+    }
+
+    @Nonnull
+    public static <T extends Pane> T addChildrenViews(@Nonnull T pane, @Nonnull Stream<? extends View> nodes) {
+        pane.getChildren().addAll(nodes.map(View::getAsNode).toList());
+        return pane;
+    }
+
+    @Nonnull
+    public static <T extends Pane> T removeChildren(@Nonnull T pane, @Nonnull Node ... nodes) {
+        pane.getChildren().removeAll(Arrays.asList(nodes));
+        return pane;
+    }
+
+    @Nonnull
+    public static <T extends Pane> T removeChildren(@Nonnull T pane, @Nonnull View ... nodes) {
+        pane.getChildren().removeAll(Arrays.stream(nodes).map(View::getAsNode).toList());
         return pane;
     }
 }

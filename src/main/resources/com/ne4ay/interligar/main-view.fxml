@@ -8,7 +8,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox alignment="TOP_CENTER" spacing="5.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.ne4ay.interligar.controllers.MainController">
+<!--      fx:controller="com.ne4ay.interligar.controllers.MainController"-->
+>
     <padding>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
     </padding>

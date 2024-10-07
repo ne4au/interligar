@@ -1,14 +1,13 @@
 package com.ne4ay.interligar.udp;
 
 import javax.annotation.Nonnull;
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-public class UDPServer implements Runnable, Closeable {
+public class UDPServer implements Channel {
 
     private final DatagramSocket socket;
     private final Runnable onStart;
@@ -66,7 +65,6 @@ public class UDPServer implements Runnable, Closeable {
             System.out.println(received); //TODO: clean
         }
         socket.close();
-        onClose.run();
     }
 
 

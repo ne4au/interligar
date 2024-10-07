@@ -12,8 +12,7 @@ module com.ne4ay.ua.interligar {
     exports com.ne4ay.interligar;
     exports com.ne4ay.interligar.udp;
     opens com.ne4ay.interligar.udp to javafx.fxml;
-    exports com.ne4ay.interligar.controllers;
-    opens com.ne4ay.interligar.controllers to javafx.fxml;
+//    opens com.ne4ay.interligar.controllers to javafx.fxml;
     exports com.ne4ay.interligar.utils;
     opens com.ne4ay.interligar.utils to javafx.fxml;
 }
