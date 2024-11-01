@@ -1,7 +1,6 @@
-package com.ne4ay.interligar.udp;
+package com.ne4ay.interligar;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 public interface Channel extends Runnable, Closeable {
 

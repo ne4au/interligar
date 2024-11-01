@@ -7,7 +7,6 @@ import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Paint;
 
-import javax.annotation.Nonnull;
 
 public class BorderStrokeBuilder {
     private Paint topStroke;
@@ -77,31 +76,26 @@ public class BorderStrokeBuilder {
         return this;
     }
 
-    @Nonnull
     public BorderStrokeBuilder setTopBorder(Paint topStroke, BorderStrokeStyle topStyle) {
         return setTopStroke(topStroke)
             .setTopStyle(topStyle);
     }
 
-    @Nonnull
     public BorderStrokeBuilder setRightBorder(Paint rightStroke, BorderStrokeStyle rightStyle) {
         return setRightStroke(rightStroke)
             .setRightStyle(rightStyle);
     }
 
-    @Nonnull
     public BorderStrokeBuilder setBottomBorder(Paint bottomStroke, BorderStrokeStyle bottomStyle) {
         return setBottomStroke(bottomStroke)
             .setBottomStyle(bottomStyle);
     }
 
-    @Nonnull
     public BorderStrokeBuilder setLeftBorder(Paint leftStroke, BorderStrokeStyle leftStyle) {
         return setLeftStroke(leftStroke)
             .setLeftStyle(leftStyle);
     }
 
-    @Nonnull
     public BorderStroke build() {
         return new BorderStroke(
             topStroke, rightStroke, bottomStroke, leftStroke,

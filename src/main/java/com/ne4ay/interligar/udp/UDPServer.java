@@ -1,6 +1,7 @@
 package com.ne4ay.interligar.udp;
 
-import javax.annotation.Nonnull;
+import com.ne4ay.interligar.Channel;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -19,9 +20,9 @@ public class UDPServer implements Channel {
     private final byte[] buf = new byte[256];
 
     public UDPServer(int port,
-        @Nonnull Runnable onStart,
-        @Nonnull UdpConnectListener onClientConnected,
-        @Nonnull Runnable onClose) throws SocketException
+        Runnable onStart,
+        UdpConnectListener onClientConnected,
+        Runnable onClose) throws SocketException
     {
         this.socket = new DatagramSocket(port);
         this.onStart = onStart;

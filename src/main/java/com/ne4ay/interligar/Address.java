@@ -1,18 +1,21 @@
 package com.ne4ay.interligar;
 
-import javax.annotation.Nonnull;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 
-public record Address(@Nonnull InetAddress inetAddress, int port) {
+public record Address(InetAddress inetAddress, int port) {
+
+    public URI toURI() {
+        return URI.create("ws://" + getRepresentation());
+    }
 
     public String getRepresentation() {
         return addressToString(inetAddress().getAddress()) + ":" + port();
     }
 
-    @Nonnull
-    public static Address fromAddress(@Nonnull String host, @Nonnull String port) {
+
+    public static Address fromAddress(String host, String port) {
         try {
             return new Address(
                 InetAddress.getByName(host),
@@ -23,8 +26,7 @@ public record Address(@Nonnull InetAddress inetAddress, int port) {
     }
 
 
-    @Nonnull
-    private static String addressToString(@Nonnull byte[] bytes) {
+    private static String addressToString(byte[] bytes) {
         return String.format("%d.%d.%d.%d",
             bytes[0] & 0xFF,
             bytes[1] & 0xFF,

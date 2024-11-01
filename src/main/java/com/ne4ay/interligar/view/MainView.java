@@ -5,8 +5,6 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import javax.annotation.Nonnull;
-
 import static com.ne4ay.interligar.utils.CssClasses.ACTIVE_TAB;
 import static com.ne4ay.interligar.utils.CssClasses.ACTIVE_TAB_FOCUS;
 import static com.ne4ay.interligar.utils.CssClasses.INACTIVE_TAB;
@@ -48,17 +46,14 @@ public class MainView implements View<VBox> {
         addChildren(root, serverConfView.getAsNode());
     }
 
-    @Nonnull
     public ServerConfView getServerConfView() {
         return serverConfView;
     }
 
-    @Nonnull
     public ClientConfView getClientConfView() {
         return clientConfView;
     }
 
-    @Nonnull
     public VBox getRoot() {
         return root;
     }
@@ -85,14 +80,14 @@ public class MainView implements View<VBox> {
         addChildren(root, clientConfView);
     }
 
-    private void setTabActive(@Nonnull Button button) {
+    private void setTabActive(Button button) {
         button.setBorder(ACTIVE_TAB_BORDER);
         button.setBackground(WHITE_BACKGROUND);
         ViewUtils.removeClassName(button, INACTIVE_TAB);
         ViewUtils.addClassName(button, ACTIVE_TAB);
     }
 
-    private void setTabInActive(@Nonnull Button button) {
+    private void setTabInActive(Button button) {
         button.setBorder(INACTIVE_TAB_BORDER);
         button.setBackground(LIGHT_GRAY_BACKGROUND);
         ViewUtils.removeClassName(button, ACTIVE_TAB);
@@ -107,7 +102,6 @@ public class MainView implements View<VBox> {
         return new ClientConfView();
     }
 
-    @Nonnull
     private VBox createRoot() {
         return builder(new VBox())
             .set(VBox::setAlignment, TOP_CENTER)
@@ -116,7 +110,6 @@ public class MainView implements View<VBox> {
             .build();
     }
 
-    @Nonnull
     private HBox createHeader() {
         return builder(new HBox())
             .set(HBox::setAlignment, CENTER_LEFT)
@@ -124,7 +117,6 @@ public class MainView implements View<VBox> {
             .build();
     }
 
-    @Nonnull
     private Button createServerButton() {
         return builder(new Button("Server mode"))
             .set(Button::setOnAction, actionEvent -> changeToServerMode())
@@ -134,7 +126,6 @@ public class MainView implements View<VBox> {
             .build();
     }
 
-    @Nonnull
     private Button createClientButton() {
         return builder(new Button("Client mode"))
             .set(Button::setOnAction, actionEvent -> changeToClientMode())
@@ -144,7 +135,6 @@ public class MainView implements View<VBox> {
             .build();
     }
 
-    @Nonnull
     @Override
     public VBox getAsNode() {
         return this.root;

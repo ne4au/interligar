@@ -2,14 +2,13 @@ package com.ne4ay.interligar.presenter;
 
 import com.ne4ay.interligar.Address;
 import com.ne4ay.interligar.InterligarApplication;
-import com.ne4ay.interligar.udp.ChannelState;
+import com.ne4ay.interligar.messages.Message;
 import com.ne4ay.interligar.udp.UDPClient;
-import com.ne4ay.interligar.udp.UDPServer;
 import com.ne4ay.interligar.view.ClientConfView;
+import com.ne4ay.interligar.websocket.InterligarWebSocketClient;
 import javafx.application.Platform;
+import org.java_websocket.handshake.ServerHandshake;
 
-import javax.annotation.Nonnull;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -19,12 +18,10 @@ import static com.ne4ay.interligar.utils.InterligarUtils.wrapInPlatformCall;
 public class ClientConfPresenter {
 
     private final ClientConfView view;
-    private final ChannelState channelState;
+    private volatile InterligarWebSocketClient client;
 
-
-    public ClientConfPresenter(@Nonnull ClientConfView view, @Nonnull ChannelState channelState) {
+    public ClientConfPresenter(ClientConfView view) {
         this.view = view;
-        this.channelState = channelState;
         init();
     }
 
@@ -32,7 +29,7 @@ public class ClientConfPresenter {
         this.view.setStartClientButtonListener(this::onStartClientButtonClick);
     }
 
-    private ClientConfView setClientInfoText(@Nonnull String text) {
+    private ClientConfView setClientInfoText(String text) {
         return this.view.setClientInfoText(text);
     }
 
@@ -41,19 +38,55 @@ public class ClientConfPresenter {
         String portString = this.view.getPortString();
         Address address = Address.fromAddress(addressString, portString);
         setClientInfoText("Starting the client...");
-        channelState.openChannel(
-            () -> createUdpClient(address),
-            this::runClient);
+        startClient(address);
     }
 
-    @Nonnull
-    private Optional<UDPClient> createUdpClient(@Nonnull Address address) {
+    private void startClient(Address address) {
+        if (this.client != null) {
+            this.client.stop();
+        }
+        this.client = new InterligarWebSocketClient(address,
+            wrapInPlatformCall(() ->
+                setClientInfoText("Client has started!")
+                    .setStartClientButtonListener(this::shutDownClient)
+                    .setStartClientButtonText("Shutdown client")),
+            this::onConnected,
+            this::onClose,
+            wrapInPlatformCall(() ->
+                setClientInfoText("Client is not running !")
+                    .setStartClientButtonListener(this::onStartClientButtonClick)
+                    .setStartClientButtonText("Start client")),
+            this::onClientException
+        );
+        this.client.start();
+    }
+
+    private void onConnected(ServerHandshake handshake) {
+        Platform.runLater(() -> {
+            setClientInfoText("The client has been connected to the server: " + handshake.getHttpStatusMessage());
+            this.client.sendMessage(Message.createTestMessage("lol"));
+        });
+    }
+
+    private void onClose(int code, String reason) {
+        Platform.runLater(() -> {
+            setClientInfoText("Client has been closed. " + code + "|Close reason: " + reason);
+        });
+    }
+
+    private void onClientException(Exception e) {
+        Platform.runLater(() -> {
+            setClientInfoText("Error! " + e.getMessage());
+        });
+    }
+
+    private Optional<UDPClient> createUdpClient(Address address) {
         try {
             return Optional.of(new UDPClient(
                 address,
                 wrapInPlatformCall(() ->
                     setClientInfoText("Client has started!")
-                        .setStartClientButtonListener(this::shutDownServer)
+                        .setStartClientButtonListener(this::shutDownClient)
                         .setStartClientButtonText("Shutdown client")),
                 wrapInPlatformCall(() ->
                     setClientInfoText("Connected to the server!")
@@ -69,7 +102,7 @@ public class ClientConfPresenter {
         }
     }
 
-    private CompletableFuture<Void> runClient(@Nonnull Runnable client) {
+    private CompletableFuture<Void> runClient(Runnable client) {
         return CompletableFuture.runAsync(client, InterligarApplication.EXECUTOR)
             .exceptionally(ex -> {
                 Platform.runLater(() ->
@@ -79,7 +112,7 @@ public class ClientConfPresenter {
             });
     }
 
-    private void shutDownServer() {
-        channelState.shutdownChannel();
+    private void shutDownClient() {
+        this.client.stop();
     }
 }

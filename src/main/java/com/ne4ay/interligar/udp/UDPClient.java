@@ -1,8 +1,8 @@
 package com.ne4ay.interligar.udp;
 
 import com.ne4ay.interligar.Address;
+import com.ne4ay.interligar.Channel;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -23,10 +23,10 @@ public class UDPClient implements Channel {
     private volatile boolean isConnected = false;
 
     public UDPClient(
-        @Nonnull Address address,
-        @Nonnull Runnable onStart,
-        @Nonnull Runnable onConnect,
-        @Nonnull Runnable onClose) throws SocketException
+        Address address,
+        Runnable onStart,
+        Runnable onConnect,
+        Runnable onClose) throws SocketException
     {
         this.socket = new DatagramSocket();
         this.address = address;

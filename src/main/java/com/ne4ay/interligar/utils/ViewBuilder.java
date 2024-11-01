@@ -4,43 +4,39 @@ import com.ne4ay.interligar.view.View;
 import com.ne4ay.interligar.view.ViewUtils;
 import javafx.scene.Node;
 
-import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 
-public record ViewBuilder<N extends Node, T extends View<N>>(@Nonnull T elem) {
+public record ViewBuilder<N extends Node, T extends View<N>>(T elem) {
 
-    @Nonnull
-    public static <N extends Node, T extends View<N>> ViewBuilder<N, T> builder(@Nonnull T elem) {
+    public static <N extends Node, T extends View<N>> ViewBuilder<N, T> builder(T elem) {
         return new ViewBuilder<>(elem);
     }
 
-    @Nonnull
-    public <A> ViewBuilder<N, T> set(@Nonnull BiConsumer<N, A> setter, @Nonnull A arg) {
+    public <A> ViewBuilder<N, T> set(BiConsumer<N, A> setter, A arg) {
         setter.accept(elem().getAsNode(), arg);
         return this;
     }
 
-    public ViewBuilder<N, T> addClassName(@Nonnull String className) {
+    public ViewBuilder<N, T> addClassName(String className) {
         ViewUtils.addClassName(elem().getAsNode(), className);
         return this;
     }
 
-    public ViewBuilder<N, T> addClassNames(@Nonnull String ... classNames) {
+    public ViewBuilder<N, T> addClassNames(String ... classNames) {
         ViewUtils.addClassNames(elem().getAsNode(), classNames);
         return this;
     }
 
-    public  ViewBuilder<N, T> removeClassName(@Nonnull String className) {
+    public  ViewBuilder<N, T> removeClassName(String className) {
         ViewUtils.removeClassName(elem().getAsNode(), className);
         return this;
     }
 
-    public  ViewBuilder<N, T> removeClassNames(@Nonnull String ... classNames) {
+    public  ViewBuilder<N, T> removeClassNames(String ... classNames) {
         ViewUtils.removeClassNames(elem().getAsNode(), classNames);
         return this;
     }
 
-    @Nonnull
     public T build() {
         return elem();
     }

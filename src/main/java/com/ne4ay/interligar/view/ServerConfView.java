@@ -9,8 +9,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import javax.annotation.Nonnull;
-
 import static com.ne4ay.interligar.FieldValidationRules.IS_ACCEPTABLE_PORT_INPUT;
 import static com.ne4ay.interligar.FieldValidationRules.LENGTH_LESSER_THEN;
 import static com.ne4ay.interligar.FieldValidationRules.MUST_CONTAIN_ONLY_NUMBERS;
@@ -53,7 +51,6 @@ public class ServerConfView implements View<VBox> {
             titleText, serverAddressLine, serverInfoText, startServerButton);
     }
 
-    @Nonnull
     public String  getPortString() {
         return portField.getText();
     }
@@ -63,22 +60,21 @@ public class ServerConfView implements View<VBox> {
         return this;
     }
 
-    public ServerConfView setStartServerButtonText(@Nonnull String text) {
+    public ServerConfView setStartServerButtonText(String text) {
         this.startServerButton.setText(text);
         return this;
     }
 
-    public ServerConfView setServerInfoText(@Nonnull String text) {
+    public ServerConfView setServerInfoText(String text) {
         this.serverInfoText.setText(text);
         return this;
     }
 
-    public ServerConfView setIpText(@Nonnull String text) {
+    public ServerConfView setIpText(String text) {
         this.ipText.setText(text);
         return this;
     }
 
-    @Nonnull
     private HBox createServerAddressLine() {
         return builder(new HBox())
             .set(HBox::setAlignment, CENTER_LEFT)
@@ -87,7 +83,6 @@ public class ServerConfView implements View<VBox> {
             .build();
     }
 
-    @Nonnull
     private TextField confPortField(TextField field) {
         return builder(field)
             .set(TextField::maxWidth, 100.)
@@ -95,14 +90,12 @@ public class ServerConfView implements View<VBox> {
             .build();
     }
 
-    @Nonnull
     private Button createStartServerButton() {
         return builder(new Button("Start server"))
             .set(Button::setOnAction, event -> this.startServerButtonListener.run())
             .build();
     }
 
-    @Nonnull
     private VBox createRoot() {
         return builder(new VBox())
             .set(VBox::setAlignment, TOP_CENTER)
@@ -110,8 +103,6 @@ public class ServerConfView implements View<VBox> {
             .build();
     }
 
-
-    @Nonnull
     @Override
     public VBox getAsNode() {
         return root;

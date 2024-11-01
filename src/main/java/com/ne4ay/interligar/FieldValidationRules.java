@@ -1,6 +1,5 @@
 package com.ne4ay.interligar;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -71,7 +70,7 @@ public final class FieldValidationRules {
             .allMatch(FieldValidationRules::isValidAddressPart);
     };
 
-    private static boolean isValidAddressPart(@Nonnull String part) {
+    private static boolean isValidAddressPart( String part) {
         try {
             int addressPart = Integer.parseInt(part);
             if (addressPart < 0 || addressPart > 255) {
@@ -83,7 +82,7 @@ public final class FieldValidationRules {
         return true;
     }
 
-    @Nonnull
+    
     public static Predicate<String> LENGTH_LESSER_THEN(int size) {
         return text -> text.length() < size;
     }

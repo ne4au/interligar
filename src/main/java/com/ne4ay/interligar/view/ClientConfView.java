@@ -9,8 +9,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import javax.annotation.Nonnull;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -59,30 +57,27 @@ public class ClientConfView implements View<VBox> {
             titleText, serverAddressLine, clientInfoText, startClientButton);
     }
 
-    @Nonnull
     public String getAddressString() {
         return this.addressFields.stream()
             .map(ValidatedField::getText)
             .collect(Collectors.joining("."));
     }
 
-    @Nonnull
     public String getPortString() {
         return this.portField.getText();
     }
 
-    public ClientConfView setClientInfoText(@Nonnull String text) {
+    public ClientConfView setClientInfoText(String text) {
         this.clientInfoText.setText(text);
         return this;
     }
 
-    @Nonnull
-    public ClientConfView setStartClientButtonListener(@Nonnull Runnable startClientButtonListener) {
+    public ClientConfView setStartClientButtonListener(Runnable startClientButtonListener) {
         this.startClientButtonListener = startClientButtonListener;
         return this;
     }
 
-    public ClientConfView setStartClientButtonText(@Nonnull String text) {
+    public ClientConfView setStartClientButtonText(String text) {
         this.startClientButton.setText(text);
         return this;
     }
@@ -101,7 +96,6 @@ public class ClientConfView implements View<VBox> {
             .build();
     }
 
-    @Nonnull
     private Button createStartClientButton() {
         return builder(new Button("Start client"))
             .set(Button::setOnAction, event -> this.startClientButtonListener.run())
@@ -109,7 +103,6 @@ public class ClientConfView implements View<VBox> {
     }
 
 
-    @Nonnull
     private HBox createClientAddressLine() {
         return builder(new HBox())
             .set(HBox::setAlignment, CENTER_LEFT)
@@ -118,8 +111,6 @@ public class ClientConfView implements View<VBox> {
             .build();
     }
 
-
-    @Nonnull
     private VBox createRoot() {
         return builder(new VBox())
             .set(VBox::setAlignment, TOP_CENTER)
@@ -127,7 +118,6 @@ public class ClientConfView implements View<VBox> {
             .build();
     }
 
-    @Nonnull
     @Override
     public VBox getAsNode() {
         return root;
