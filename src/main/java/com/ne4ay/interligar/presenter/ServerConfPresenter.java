@@ -32,7 +32,7 @@ public class ServerConfPresenter {
 
     private void init() {
         try {
-            view.setIpText("Address:    " + InetAddress.getLocalHost().getHostAddress() + ":");
+            view.setIpText("Address:    " + getLocalAddress() + ":");
         } catch (Exception e) {
             setServerInfoText("Unable to determine local address.");
         }
