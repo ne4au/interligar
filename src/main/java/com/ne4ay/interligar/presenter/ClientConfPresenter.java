@@ -76,6 +76,7 @@ public class ClientConfPresenter {
 
     private void onClientException(Exception e) {
         Platform.runLater(() -> {
+            System.out.println(e); //TODO: clean
             setClientInfoText("Error! " + e.getMessage());
         });
     }
