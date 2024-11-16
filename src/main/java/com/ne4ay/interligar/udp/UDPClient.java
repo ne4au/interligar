@@ -1,8 +1,8 @@
 package com.ne4ay.interligar.udp;
 
 import com.ne4ay.interligar.Address;
-import com.ne4ay.interligar.Channel;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -10,7 +10,7 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-public class UDPClient implements Channel {
+public class UDPClient implements  Runnable, Closeable {
     private final DatagramSocket socket;
     private final Address address;
     private final Runnable onStart;

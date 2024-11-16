@@ -1,21 +1,19 @@
 package com.ne4ay.interligar.websocket;
 
 
-import com.ne4ay.interligar.Lifecycle;
+import com.ne4ay.interligar.Channel;
 import com.ne4ay.interligar.messages.Message;
-import com.ne4ay.interligar.udp.UdpConnectListener;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static com.ne4ay.interligar.messages.MessagesUtils.serialize;
 
-public class SocketServer extends WebSocketServer implements Lifecycle {
+public class SocketServer extends WebSocketServer implements Channel {
 
     private final Runnable onStart;
     private final BiConsumer<WebSocket, ClientHandshake> onClientConnected;
@@ -42,6 +40,7 @@ public class SocketServer extends WebSocketServer implements Lifecycle {
         this.exceptionHandler = exceptionHandler;
     }
 
+    @Override
     public void sendMessage(Message<?> message) {
         serialize(message, this.exceptionHandler)
             .ifPresent(this::broadcast);

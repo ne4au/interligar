@@ -1,24 +1,23 @@
 package com.ne4ay.interligar;
 
+import com.ne4ay.interligar.capture.ScreenCapturer;
 import com.ne4ay.interligar.presenter.MainPresenter;
-import com.ne4ay.interligar.view.MainView;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class InterligarApplication extends Application {
-    public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
-
     @Override
     public void start(Stage stage) throws IOException, URISyntaxException {
-        MainPresenter mainPresenter = new MainPresenter();
+        ScreenCapturer screenCapturer = new ScreenCapturer();
+        MainPresenter mainPresenter = new MainPresenter(screenCapturer);
         Scene scene = new Scene(mainPresenter.getRoot(), 600, 600);
         scene.getStylesheets().add(InterligarApplication.class.getResource("main-view.css").toURI().toString());
         stage.setTitle("Interligar");

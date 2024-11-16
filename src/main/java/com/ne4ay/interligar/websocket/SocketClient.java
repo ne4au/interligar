@@ -1,7 +1,7 @@
 package com.ne4ay.interligar.websocket;
 
 import com.ne4ay.interligar.Address;
-import com.ne4ay.interligar.Lifecycle;
+import com.ne4ay.interligar.Channel;
 import com.ne4ay.interligar.messages.Message;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 import static com.ne4ay.interligar.messages.MessagesUtils.serialize;
 
-public class SocketClient extends WebSocketClient implements Lifecycle {
+public class SocketClient extends WebSocketClient implements Channel {
 
     private final Runnable onStart;
     private final Consumer<ServerHandshake> onConnected;
@@ -36,6 +36,7 @@ public class SocketClient extends WebSocketClient implements Lifecycle {
         this.exceptionHandler = exceptionHandler;
     }
 
+    @Override
     public void sendMessage(Message<?> message) {
         serialize(message, this.exceptionHandler)
             .ifPresent(this::send);

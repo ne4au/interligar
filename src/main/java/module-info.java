@@ -24,4 +24,5 @@ module com.ne4ay.interligar {
     requires javax.websocket.api;
     requires jsr305;
     requires org.java_websocket;
+    requires java.desktop;
 }

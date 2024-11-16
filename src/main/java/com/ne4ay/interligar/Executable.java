@@ -1,10 +1,11 @@
 package com.ne4ay.interligar;
 
-public interface Lifecycle {
+public interface Executable {
 
-    void start();
+    void start() throws InterruptedException;
 
     void stop() throws InterruptedException;
 
     boolean isRunning();
+
 }

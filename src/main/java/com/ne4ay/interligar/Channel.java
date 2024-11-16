@@ -1,9 +1,8 @@
 package com.ne4ay.interligar;
 
-import java.io.Closeable;
+import com.ne4ay.interligar.messages.Message;
 
-public interface Channel extends Runnable, Closeable {
+public interface Channel extends Executable{
 
-    @Override
-    void close();
+    void sendMessage(Message<?> message);
 }

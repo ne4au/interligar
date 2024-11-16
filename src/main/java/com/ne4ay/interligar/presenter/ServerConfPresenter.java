@@ -1,6 +1,6 @@
 package com.ne4ay.interligar.presenter;
 
-import com.ne4ay.interligar.InterligarApplication;
+import com.ne4ay.interligar.capture.ScreenCapturer;
 import com.ne4ay.interligar.messages.Message;
 import com.ne4ay.interligar.udp.UDPServer;
 import com.ne4ay.interligar.view.ServerConfView;
@@ -9,24 +9,25 @@ import javafx.application.Platform;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 
+import java.awt.AWTException;
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static com.ne4ay.interligar.utils.InterligarUtils.wrapInPlatformCall;
 
 public class ServerConfPresenter {
 
     private final ServerConfView view;
+    private final ScreenCapturer screenCapturer;
     private volatile InterligarWebSocketServer server;
 
-    public ServerConfPresenter(ServerConfView view) {
+    public ServerConfPresenter(ServerConfView view, ScreenCapturer screenCapturer) {
         this.view = view;
+        this.screenCapturer = screenCapturer;
         init();
     }
 
@@ -39,7 +40,8 @@ public class ServerConfPresenter {
         this.view.setStartServerButtonListener(this::onStartServerButtonClick);
     }
 
-    private String getLocalAddress() throws SocketException {
+    private String getLocalAddress() throws SocketException, AWTException {
+
         return Collections.list(NetworkInterface.getNetworkInterfaces())
             .stream()
             .map(NetworkInterface::getInetAddresses)
@@ -111,16 +113,11 @@ public class ServerConfPresenter {
             setServerInfoText("Client has been connected: " + client.getRemoteSocketAddress());
             this.server.sendMessage(Message.createTestMessage("lol"));
         });
-    }
-
-    private CompletableFuture<Void> runServer(Runnable server) {
-        return CompletableFuture.runAsync(server, InterligarApplication.EXECUTOR)
-            .exceptionally(ex -> {
-                Platform.runLater(() ->
-                    setServerInfoText("Server error: " + ex.getMessage())
-                );
-                return null;
-            });
+        try {
+            this.screenCapturer.start();
+        } catch (InterruptedException e) {
+            onServerException(e);
+        }
     }
 
     private Optional<UDPServer> createUdpServer(String portString) {

@@ -2,6 +2,7 @@ package com.ne4ay.interligar.presenter;
 
 import com.ne4ay.interligar.Address;
 import com.ne4ay.interligar.InterligarApplication;
+import com.ne4ay.interligar.capture.ScreenCapturer;
 import com.ne4ay.interligar.messages.Message;
 import com.ne4ay.interligar.udp.UDPClient;
 import com.ne4ay.interligar.view.ClientConfView;
@@ -18,10 +19,12 @@ import static com.ne4ay.interligar.utils.InterligarUtils.wrapInPlatformCall;
 public class ClientConfPresenter {
 
     private final ClientConfView view;
+    private final ScreenCapturer screenCapturer;
     private volatile InterligarWebSocketClient client;
 
-    public ClientConfPresenter(ClientConfView view) {
+    public ClientConfPresenter(ClientConfView view, ScreenCapturer screenCapturer) {
         this.view = view;
+        this.screenCapturer = screenCapturer;
         init();
     }
 
@@ -101,16 +104,6 @@ public class ClientConfPresenter {
             setClientInfoText("Unable to start server! Error:" + e);
             return Optional.empty();
         }
-    }
-
-    private CompletableFuture<Void> runClient(Runnable client) {
-        return CompletableFuture.runAsync(client, InterligarApplication.EXECUTOR)
-            .exceptionally(ex -> {
-                Platform.runLater(() ->
-                    setClientInfoText("Client error: " + ex.getMessage())
-                );
-                return null;
-            });
     }
 
     private void shutDownClient() {
