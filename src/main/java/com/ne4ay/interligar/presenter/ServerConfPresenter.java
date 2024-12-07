@@ -1,7 +1,10 @@
 package com.ne4ay.interligar.presenter;
 
+import com.ne4ay.interligar.capture.CaptureMode;
 import com.ne4ay.interligar.capture.ScreenCapturer;
 import com.ne4ay.interligar.messages.Message;
+import com.ne4ay.interligar.messages.MessageType;
+import com.ne4ay.interligar.messages.data.ChangeDestinationModeResponseMessageData;
 import com.ne4ay.interligar.udp.UDPServer;
 import com.ne4ay.interligar.view.ServerConfView;
 import com.ne4ay.interligar.websocket.InterligarWebSocketServer;
@@ -81,19 +84,57 @@ public class ServerConfPresenter {
         if (this.server != null) {
             this.server.stop();
         }
-        this.server = new InterligarWebSocketServer(port,
-            wrapInPlatformCall(() ->
-                setServerInfoText("Server has started!")
-                    .setStartServerButtonListener(this::shutDownServer)
-                    .setStartServerButtonText("Shutdown server")),
+        this.server = createServer(port);
+        this.server.addMessageListener(MessageType.CHANGE_DESTINATION_RESPONSE, this::handleChangeDestinationResponse);
+        this.server.start();
+    }
+
+    private void handleChangeDestinationResponse(WebSocket ws, ChangeDestinationModeResponseMessageData messageData) {
+
+    }
+
+    private InterligarWebSocketServer createServer(int port) {
+        return new InterligarWebSocketServer(port,
+            wrapInPlatformCall(() -> {
+                configureUIElementsOnStartServer();
+                startScreenCapturer();
+            }),
             this::onClientConnected,
             this::onClose,
-            wrapInPlatformCall(() ->
-                setServerInfoText("Server is not running!")
-                    .setStartServerButtonListener(this::onStartServerButtonClick)
-                    .setStartServerButtonText("Start server")),
+            wrapInPlatformCall(() -> {
+                configureUIElementsOnStopServer();
+                try {
+                    this.screenCapturer.stop();
+                } catch (Exception e) {
+                    onServerException(e);
+                }
+            }),
             this::onServerException);
-        this.server.start();
+    }
+
+    private void configureUIElementsOnStartServer() {
+        setServerInfoText("Server has started!")
+            .setStartServerButtonListener(this::shutDownServer)
+            .setStartServerButtonText("Shutdown server");
+    }
+
+    private void startScreenCapturer() {
+        try {
+            this.screenCapturer
+                .setCaptureMode(CaptureMode.DESTINATION)
+                .setOnGoOutOfBounds(() -> {
+                    this.server.sendMessage(Message.createChangeDestinationRequestMessage());
+                })
+                .start();
+        } catch (Exception e) {
+            onServerException(e);
+        }
+    }
+
+    private void configureUIElementsOnStopServer() {
+        setServerInfoText("Server is not running!")
+            .setStartServerButtonListener(this::onStartServerButtonClick)
+            .setStartServerButtonText("Start server");
     }
 
     private void onServerException(Exception e) {

@@ -48,20 +48,36 @@ public class ClientConfPresenter {
         if (this.client != null) {
             this.client.stop();
         }
-        this.client = new InterligarWebSocketClient(address,
-            wrapInPlatformCall(() ->
+        this.client = createClient(address);
+        this.client.start();
+    }
+
+    private InterligarWebSocketClient createClient(Address address) {
+        return new InterligarWebSocketClient(address,
+            wrapInPlatformCall(() -> {
                 setClientInfoText("Client has started!")
                     .setStartClientButtonListener(this::shutDownClient)
-                    .setStartClientButtonText("Shutdown client")),
+                    .setStartClientButtonText("Shutdown client");
+                try {
+                    this.screenCapturer.start();
+                } catch (InterruptedException e) {
+                    onClientException(e);
+                }
+            }),
             this::onConnected,
             this::onClose,
-            wrapInPlatformCall(() ->
+            wrapInPlatformCall(() -> {
                 setClientInfoText("Client is not running !")
                     .setStartClientButtonListener(this::onStartClientButtonClick)
-                    .setStartClientButtonText("Start client")),
+                    .setStartClientButtonText("Start client");
+                try {
+                    this.screenCapturer.stop();
+                } catch (InterruptedException e) {
+                    onClientException(e);
+                }
+            }),
             this::onClientException
         );
-        this.client.start();
     }
 
     private void onConnected(ServerHandshake handshake) {

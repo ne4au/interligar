@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.awt.AWTException;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -15,7 +16,7 @@ import java.net.URISyntaxException;
 
 public class InterligarApplication extends Application {
     @Override
-    public void start(Stage stage) throws IOException, URISyntaxException {
+    public void start(Stage stage) throws Exception {
         ScreenCapturer screenCapturer = new ScreenCapturer();
         MainPresenter mainPresenter = new MainPresenter(screenCapturer);
         Scene scene = new Scene(mainPresenter.getRoot(), 600, 600);

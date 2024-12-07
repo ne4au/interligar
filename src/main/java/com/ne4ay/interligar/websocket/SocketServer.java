@@ -3,6 +3,10 @@ package com.ne4ay.interligar.websocket;
 
 import com.ne4ay.interligar.Channel;
 import com.ne4ay.interligar.messages.Message;
+import com.ne4ay.interligar.messages.MessageData;
+import com.ne4ay.interligar.messages.MessageDataListener;
+import com.ne4ay.interligar.messages.MessageType;
+import com.ne4ay.interligar.messages.MessagesUtils;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -20,6 +24,7 @@ public class SocketServer extends WebSocketServer implements Channel {
     private final CloseHandler onClose;
     private final Runnable onStop;
     private final Consumer<Exception> exceptionHandler;
+    private final ListenerContainer listenerContainer = new ListenerContainer();
 
     private volatile boolean isRunning = false;
     private volatile boolean isConnected = false;
@@ -46,6 +51,10 @@ public class SocketServer extends WebSocketServer implements Channel {
             .ifPresent(this::broadcast);
     }
 
+    public <T extends MessageData> void addMessageListener(MessageType<T> messageType, MessageDataListener<T> messageDataListener) {
+        this.listenerContainer.addMessageListener(messageType, messageDataListener);
+    }
+
     @Override
     public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
         this.isConnected = true;
@@ -66,8 +75,13 @@ public class SocketServer extends WebSocketServer implements Channel {
     }
 
     @Override
-    public void onMessage(WebSocket webSocket, String s) {
-        System.out.println(s); //TODO: clean
+    public void onMessage(WebSocket webSocket, String messageText) {
+        System.out.println(messageText); //TODO: clean
+        MessagesUtils
+            .parse(messageText, this.exceptionHandler)
+            .ifPresentOrElse(
+                message -> listenerContainer.handleMessage(webSocket, message, this.exceptionHandler),
+                () -> System.out.println("Unable to parse " + messageText));
     }
 
     @Override

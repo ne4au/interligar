@@ -2,6 +2,9 @@ package com.ne4ay.interligar.websocket;
 
 import com.ne4ay.interligar.Channel;
 import com.ne4ay.interligar.messages.Message;
+import com.ne4ay.interligar.messages.MessageData;
+import com.ne4ay.interligar.messages.MessageDataListener;
+import com.ne4ay.interligar.messages.MessageType;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 
@@ -32,6 +35,10 @@ public class InterligarWebSocketServer implements Channel {
             .ifPresent(this.server::broadcast);
     }
 
+    public <T extends MessageData> InterligarWebSocketServer addMessageListener(MessageType<T> messageType, MessageDataListener<T> messageDataListener) {
+        this.server.addMessageListener(messageType, messageDataListener);
+        return this;
+    }
 
     public void start() {
         this.server.start();

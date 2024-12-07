@@ -19,6 +19,7 @@ module com.ne4ay.interligar {
     opens com.ne4ay.interligar.utils to javafx.fxml;
     opens com.ne4ay.interligar.websocket ;// to spring.core, spring.beans, spring.context, spring.aop, spring.web, spring.websocket, ALL-UNNAMED;
     opens com.ne4ay.interligar.messages to com.fasterxml.jackson.databind;
+    opens com.ne4ay.interligar.messages.data to com.fasterxml.jackson.databind;
 
     requires static java.sql;  // Example of explicitly naming modules if needed
     requires javax.websocket.api;

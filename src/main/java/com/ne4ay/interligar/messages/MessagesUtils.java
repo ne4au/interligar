@@ -23,7 +23,7 @@ public final class MessagesUtils {
                 throw new IllegalStateException("Got corrupted message without id field: " + message);
             }
             String id = idField.asText();
-            MessageType messageType = getMessageTypeForId(id);
+            MessageType<? extends MessageData> messageType = getMessageTypeForId(id);
             if (messageType == null) {
                 throw new IllegalStateException("Unknown message type got: `" + id + "`");
             }
@@ -32,11 +32,20 @@ public final class MessagesUtils {
                 throw new IllegalStateException("Got corrupted message without data field");
             }
             MessageData messageData = OBJECT_MAPPER.readValue(new TreeTraversingParser(dataNode), messageType.getMessageDataClass());
-            return Optional.of(new Message<>(messageType, messageData));
+            return Optional.of(getMessage(messageType, messageData));
         } catch (Exception e) {
             exceptionHandler.accept(e);
             return Optional.empty();
         }
+    }
+
+    public static <T extends MessageData> Message<T> getMessage(MessageType<T> messageType, MessageData data) {
+        Class<?> dataClass = data.getClass();
+        if (!messageType.getMessageDataClass().isAssignableFrom(dataClass)) {
+            throw new IllegalStateException("Wrong message got: Expected type" + messageType.getId() + ". Actual type: " + dataClass);
+        }
+        //noinspection unchecked
+        return new Message<>(messageType, (T) data);
     }
 
     public static Optional<String> serialize(Message<?> message, Consumer<Exception> exceptionHandler) {

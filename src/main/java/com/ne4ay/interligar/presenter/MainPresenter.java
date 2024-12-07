@@ -14,7 +14,7 @@ public class MainPresenter {
     public MainPresenter(ScreenCapturer screenCapturer) {
         this.mainView = new MainView();
 
-        this.screenCapturer = new ScreenCapturer();
+        this.screenCapturer = screenCapturer;
         this.serverConfPresenter = new ServerConfPresenter(this.mainView.getServerConfView(), screenCapturer);
         this.clientConfPresenter = new ClientConfPresenter(this.mainView.getClientConfView(), screenCapturer);
     }
