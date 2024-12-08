@@ -128,6 +128,9 @@ public class ScreenCapturer implements AutoCloseable, Runnable, Executable {
 
     private void handleSourceDestinationMode() {
         Point point = getMouseLocation();
+        if (point.equals(this.previousPoint)) {
+            return;
+        }
         MouseLocationDelta locationDelta = MouseLocationDelta.delta(this.previousPoint, point);
         this.previousPoint = point;
         this.onMouseMove.accept(locationDelta);
