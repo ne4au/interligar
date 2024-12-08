@@ -1,12 +1,11 @@
 package com.ne4ay.interligar.presenter;
 
 import com.ne4ay.interligar.Address;
-import com.ne4ay.interligar.InterligarApplication;
+import com.ne4ay.interligar.capture.CaptureMode;
 import com.ne4ay.interligar.capture.ScreenCapturer;
 import com.ne4ay.interligar.messages.Message;
 import com.ne4ay.interligar.messages.MessageType;
 import com.ne4ay.interligar.messages.data.ChangeDestinationModeRequestMessageData;
-import com.ne4ay.interligar.messages.data.ChangeDestinationModeResponseMessageData;
 import com.ne4ay.interligar.udp.UDPClient;
 import com.ne4ay.interligar.view.ClientConfView;
 import com.ne4ay.interligar.websocket.InterligarWebSocketClient;
@@ -16,7 +15,6 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.SocketException;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static com.ne4ay.interligar.utils.InterligarUtils.wrapInPlatformCall;
 
@@ -52,8 +50,8 @@ public class ClientConfPresenter {
         if (this.client != null) {
             this.client.stop();
         }
-        this.client = createClient(address);
-        this.client.addMessageListener(MessageType.CHANGE_DESTINATION_REQUEST, this::handleChangeDestinationRequest);
+        this.client = createClient(address)
+            .addMessageListener(MessageType.CHANGE_DESTINATION_REQUEST, this::handleChangeDestinationRequest);
         this.client.start();
     }
 
@@ -64,21 +62,13 @@ public class ClientConfPresenter {
     private InterligarWebSocketClient createClient(Address address) {
         return new InterligarWebSocketClient(address,
             wrapInPlatformCall(() -> {
-                setClientInfoText("Client has started!")
-                    .setStartClientButtonListener(this::shutDownClient)
-                    .setStartClientButtonText("Shutdown client");
-                try {
-                    this.screenCapturer.start();
-                } catch (InterruptedException e) {
-                    onClientException(e);
-                }
+                configureUIElementsOnStartClient();
+                startScreenCapturer();
             }),
             this::onConnected,
             this::onClose,
             wrapInPlatformCall(() -> {
-                setClientInfoText("Client is not running !")
-                    .setStartClientButtonListener(this::onStartClientButtonClick)
-                    .setStartClientButtonText("Start client");
+                configureUIElementsOnStopClient();
                 try {
                     this.screenCapturer.stop();
                 } catch (InterruptedException e) {
@@ -87,6 +77,28 @@ public class ClientConfPresenter {
             }),
             this::onClientException
         );
+    }
+
+    private void configureUIElementsOnStartClient() {
+        setClientInfoText("Client has started!")
+            .setStartClientButtonListener(this::shutDownClient)
+            .setStartClientButtonText("Shutdown client");
+    }
+
+    private void startScreenCapturer() {
+        try {
+            this.screenCapturer
+                .setCaptureMode(CaptureMode.SOURCE)
+                .start();
+        } catch (InterruptedException e) {
+            onClientException(e);
+        }
+    }
+
+    private void configureUIElementsOnStopClient() {
+        setClientInfoText("Client is not running !")
+            .setStartClientButtonListener(this::onStartClientButtonClick)
+            .setStartClientButtonText("Start client");
     }
 
     private void onConnected(ServerHandshake handshake) {
