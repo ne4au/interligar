@@ -50,6 +50,10 @@ public class ClientConfPresenter {
         if (this.client != null) {
             this.client.stop();
         }
+        this.screenCapturer
+            .setOnMouseMove(mouseDelta -> {
+                this.client.sendMessage(Message.createMouseChangePositionMessage(mouseDelta));
+            });
         this.client = createClient(address)
             .addMessageListener(MessageType.CHANGE_DESTINATION_REQUEST, this::handleChangeDestinationRequest);
         this.client.start();
