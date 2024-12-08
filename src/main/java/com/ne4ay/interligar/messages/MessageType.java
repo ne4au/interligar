@@ -39,7 +39,7 @@ public class MessageType<T extends MessageData> {
     }
 
     private static Set<MessageType<?>> values() {
-        return Set.of(TEST, CHANGE_DESTINATION_REQUEST, CHANGE_DESTINATION_RESPONSE);
+        return Set.of(TEST, CHANGE_DESTINATION_REQUEST, CHANGE_DESTINATION_RESPONSE, MOUSE_CHANGE_POSITION);
     }
 
     public static MessageType<?> getMessageTypeForId(String id) {
