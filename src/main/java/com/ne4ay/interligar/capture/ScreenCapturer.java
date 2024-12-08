@@ -4,6 +4,7 @@ import com.ne4ay.interligar.Executable;
 import com.ne4ay.interligar.FunctionUtils;
 import com.ne4ay.interligar.data.MouseLocationDelta;
 import com.ne4ay.interligar.messages.data.MouseChangePositionMessageData;
+import com.ne4ay.interligar.utils.InterligarUtils;
 import javafx.stage.Screen;
 
 import java.awt.AWTException;
@@ -69,9 +70,10 @@ public class ScreenCapturer implements AutoCloseable, Runnable, Executable {
 
     public ScreenCapturer moveMouse(MouseLocationDelta delta) {
         Point point = getMouseLocation();
-        robot.mouseMove(
-            (int)point.getX() + (int)delta.delX(),
-            (int)point.getY() + (int)delta.delY());
+        InterligarUtils.moveMouse(this.robot, new Point(
+            point.x + delta.delX(),
+            point.y + delta.delY()
+        ));
         return this;
     }
 

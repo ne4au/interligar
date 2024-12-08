@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
 
 import static com.ne4ay.interligar.FieldValidationRules.IS_ACCEPTABLE_IP_PART_INPUT;
 import static com.ne4ay.interligar.FieldValidationRules.IS_ACCEPTABLE_PORT_INPUT;
+import static com.ne4ay.interligar.utils.InterligarUtils.DEFAULT_PORT;
 import static com.ne4ay.interligar.utils.ViewNodeBuilder.builder;
 import static com.ne4ay.interligar.view.ViewUtils.addChildren;
 import static com.ne4ay.interligar.view.ViewUtils.addChildrenViews;
@@ -90,7 +91,7 @@ public class ClientConfView implements View<VBox> {
     }
 
     private ValidatedField createPortField() {
-        return ViewBuilder.builder(new ValidatedField(new TextField(), IS_ACCEPTABLE_PORT_INPUT))
+        return ViewBuilder.builder(new ValidatedField(new TextField(DEFAULT_PORT), IS_ACCEPTABLE_PORT_INPUT))
             .set(TextField::maxWidth, 100.)
             .set(TextField::setPrefWidth, 100.)
             .build();
