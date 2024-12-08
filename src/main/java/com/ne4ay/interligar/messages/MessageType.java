@@ -2,6 +2,7 @@ package com.ne4ay.interligar.messages;
 
 import com.ne4ay.interligar.messages.data.ChangeDestinationModeRequestMessageData;
 import com.ne4ay.interligar.messages.data.ChangeDestinationModeResponseMessageData;
+import com.ne4ay.interligar.messages.data.MouseChangePositionMessageData;
 import com.ne4ay.interligar.messages.data.TestMessageData;
 
 import java.util.Map;
@@ -19,6 +20,8 @@ public class MessageType<T extends MessageData> {
         new MessageType<>("ch_d_req", ChangeDestinationModeRequestMessageData.class);
     public static final MessageType<ChangeDestinationModeResponseMessageData> CHANGE_DESTINATION_RESPONSE =
         new MessageType<>("ch_d_resp", ChangeDestinationModeResponseMessageData.class);
+    public static final MessageType<MouseChangePositionMessageData> MOUSE_CHANGE_POSITION =
+        new MessageType<>("m_ch_p", MouseChangePositionMessageData.class);
     ;
     private static final Map<String, MessageType<?>> MESSAGE_TYPE_MAP = values()
         .stream()

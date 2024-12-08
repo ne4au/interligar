@@ -34,7 +34,7 @@ public class InterligarWebSocketClient implements Channel {
             .ifPresent(this.client::send);
     }
 
-    public InterligarWebSocketClient addMessageListener(MessageType messageType, MessageDataListener<? super MessageData> messageDataListener) {
+    public <T extends MessageData> InterligarWebSocketClient addMessageListener(MessageType<T> messageType, MessageDataListener<T> messageDataListener) {
         this.client.addMessageListener(messageType, messageDataListener);
         return this;
     }

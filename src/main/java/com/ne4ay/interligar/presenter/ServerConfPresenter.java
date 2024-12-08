@@ -5,6 +5,7 @@ import com.ne4ay.interligar.capture.ScreenCapturer;
 import com.ne4ay.interligar.messages.Message;
 import com.ne4ay.interligar.messages.MessageType;
 import com.ne4ay.interligar.messages.data.ChangeDestinationModeResponseMessageData;
+import com.ne4ay.interligar.messages.data.MouseChangePositionMessageData;
 import com.ne4ay.interligar.udp.UDPServer;
 import com.ne4ay.interligar.view.ServerConfView;
 import com.ne4ay.interligar.websocket.InterligarWebSocketServer;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.ne4ay.interligar.FunctionUtils.EMPTY_RUNNABLE;
 import static com.ne4ay.interligar.utils.InterligarUtils.wrapInPlatformCall;
 
 public class ServerConfPresenter {
@@ -84,13 +86,26 @@ public class ServerConfPresenter {
         if (this.server != null) {
             this.server.stop();
         }
-        this.server = createServer(port);
-        this.server.addMessageListener(MessageType.CHANGE_DESTINATION_RESPONSE, this::handleChangeDestinationResponse);
+        this.screenCapturer
+            .setOnGoOutOfBounds(() -> {
+                this.server.sendMessage(Message.createChangeDestinationRequestMessage());
+            })
+            .setOnMouseMove(mouseDelta -> {
+                this.server.sendMessage(Message.createMouseChangePositionMessage(mouseDelta));
+            });
+        this.server = createServer(port)
+            .addMessageListener(MessageType.CHANGE_DESTINATION_RESPONSE, this::handleChangeDestinationResponse)
+            .addMessageListener(MessageType.MOUSE_CHANGE_POSITION, this::handleMouseMoveMessage);
         this.server.start();
     }
 
     private void handleChangeDestinationResponse(WebSocket ws, ChangeDestinationModeResponseMessageData messageData) {
+        this.screenCapturer.setCaptureMode(CaptureMode.SOURCE);
 
+    }
+
+    private void handleMouseMoveMessage(WebSocket ws, MouseChangePositionMessageData messageData) {
+        this.screenCapturer.moveMouse(messageData.toDelta());
     }
 
     private InterligarWebSocketServer createServer(int port) {
@@ -184,6 +199,7 @@ public class ServerConfPresenter {
     }
 
     private void shutDownServer() {
+        this.screenCapturer.setOnGoOutOfBounds(EMPTY_RUNNABLE);
         Optional.ofNullable(this.server)
             .ifPresent(InterligarWebSocketServer::stop);
     }

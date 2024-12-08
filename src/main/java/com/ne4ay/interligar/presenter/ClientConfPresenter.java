@@ -4,10 +4,14 @@ import com.ne4ay.interligar.Address;
 import com.ne4ay.interligar.InterligarApplication;
 import com.ne4ay.interligar.capture.ScreenCapturer;
 import com.ne4ay.interligar.messages.Message;
+import com.ne4ay.interligar.messages.MessageType;
+import com.ne4ay.interligar.messages.data.ChangeDestinationModeRequestMessageData;
+import com.ne4ay.interligar.messages.data.ChangeDestinationModeResponseMessageData;
 import com.ne4ay.interligar.udp.UDPClient;
 import com.ne4ay.interligar.view.ClientConfView;
 import com.ne4ay.interligar.websocket.InterligarWebSocketClient;
 import javafx.application.Platform;
+import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.SocketException;
@@ -49,7 +53,12 @@ public class ClientConfPresenter {
             this.client.stop();
         }
         this.client = createClient(address);
+        this.client.addMessageListener(MessageType.CHANGE_DESTINATION_REQUEST, this::handleChangeDestinationRequest);
         this.client.start();
+    }
+
+    private void handleChangeDestinationRequest(WebSocket ws, ChangeDestinationModeRequestMessageData messageData) {
+
     }
 
     private InterligarWebSocketClient createClient(Address address) {

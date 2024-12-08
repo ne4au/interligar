@@ -16,7 +16,9 @@ module com.ne4ay.interligar {
     opens com.ne4ay.interligar.udp to javafx.fxml;
 //    opens com.ne4ay.interligar.controllers to javafx.fxml;
     exports com.ne4ay.interligar.utils;
+    exports com.ne4ay.interligar.data;
     opens com.ne4ay.interligar.utils to javafx.fxml;
+    opens com.ne4ay.interligar.data to javafx.fxml;
     opens com.ne4ay.interligar.websocket ;// to spring.core, spring.beans, spring.context, spring.aop, spring.web, spring.websocket, ALL-UNNAMED;
     opens com.ne4ay.interligar.messages to com.fasterxml.jackson.databind;
     opens com.ne4ay.interligar.messages.data to com.fasterxml.jackson.databind;

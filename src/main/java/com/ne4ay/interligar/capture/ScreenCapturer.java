@@ -1,6 +1,9 @@
 package com.ne4ay.interligar.capture;
 
 import com.ne4ay.interligar.Executable;
+import com.ne4ay.interligar.FunctionUtils;
+import com.ne4ay.interligar.data.MouseLocationDelta;
+import com.ne4ay.interligar.messages.data.MouseChangePositionMessageData;
 import javafx.stage.Screen;
 
 import java.awt.AWTException;
@@ -10,6 +13,12 @@ import java.awt.Robot;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
+import static com.ne4ay.interligar.FunctionUtils.EMPTY_RUNNABLE;
+import static com.ne4ay.interligar.FunctionUtils.emptyConsumer;
+import static com.ne4ay.interligar.utils.InterligarUtils.getMouseLocation;
 
 public class ScreenCapturer implements AutoCloseable, Runnable, Executable {
 
@@ -24,7 +33,8 @@ public class ScreenCapturer implements AutoCloseable, Runnable, Executable {
     private final Robot robot;
 
     private volatile CaptureMode captureType;
-    private volatile Runnable onGoOutOfBounds = () -> {};
+    private volatile Runnable onGoOutOfBounds = EMPTY_RUNNABLE;
+    private volatile Consumer<MouseLocationDelta> onMouseMove = FunctionUtils::emptyConsumer;
     private volatile CompletableFuture<Void> future;
     private volatile boolean hasToRun = true;
     private volatile boolean isRunning = false;
@@ -34,7 +44,9 @@ public class ScreenCapturer implements AutoCloseable, Runnable, Executable {
     private volatile double minY = 0;
     private volatile double maxX = 0;
     private volatile double maxY = 0;
-    private volatile boolean wantsToGoOutOfBounds = false;
+
+    private volatile Point previousPoint;
+    private volatile AtomicInteger wantsToGoOutOfBoundsCounter = new AtomicInteger(0);
 
     public ScreenCapturer() throws AWTException {
         this.robot = new Robot();
@@ -45,8 +57,21 @@ public class ScreenCapturer implements AutoCloseable, Runnable, Executable {
         return this;
     }
 
+    public ScreenCapturer setOnMouseMove(Consumer<MouseLocationDelta> onMouseMove) {
+        this.onMouseMove = onMouseMove;
+        return this;
+    }
+
     public ScreenCapturer setCaptureMode(CaptureMode captureType) {
         this.captureType = captureType;
+        return this;
+    }
+
+    public ScreenCapturer moveMouse(MouseLocationDelta delta) {
+        Point point = getMouseLocation();
+        robot.mouseMove(
+            (int)point.getX() + (int)delta.delX(),
+            (int)point.getY() + (int)delta.delY());
         return this;
     }
 
@@ -85,14 +110,12 @@ public class ScreenCapturer implements AutoCloseable, Runnable, Executable {
     @Override
     public void run() {
         this.isRunning = true;
+        this.previousPoint = getMouseLocation();
         while (this.hasToRun) {
             switch (this.captureType) {
-            case DESTINATION -> handleDestinationMode();
-            case SOURCE -> handleSourceDestinationMode();
+                case DESTINATION -> handleDestinationMode();
+                case SOURCE -> handleSourceDestinationMode();
             }
-
-
-
             try {
                 Thread.currentThread().join(5);
             } catch (InterruptedException e) {
@@ -104,11 +127,14 @@ public class ScreenCapturer implements AutoCloseable, Runnable, Executable {
     }
 
     private void handleSourceDestinationMode() {
-
+        Point point = getMouseLocation();
+        MouseLocationDelta locationDelta = MouseLocationDelta.delta(this.previousPoint, point);
+        this.previousPoint = point;
+        this.onMouseMove.accept(locationDelta);
     }
 
     private void handleDestinationMode() {
-        Point point = MouseInfo.getPointerInfo().getLocation();
+        Point point = getMouseLocation();
         boolean isChanged = false;
         var x = point.getX();
         var y = point.getY();
@@ -123,14 +149,14 @@ public class ScreenCapturer implements AutoCloseable, Runnable, Executable {
         if (isChanged) {
             System.out.println(point); //TODO: clean
             if (x > this.maxX - 100) {
-                if (this.wantsToGoOutOfBounds) {
+                if (this.wantsToGoOutOfBoundsCounter.get() >= 3) {
                     this.onGoOutOfBounds.run();
                 } else {
                     this.robot.mouseMove((int) this.currentX - 1, (int) this.currentY);
-                    this.wantsToGoOutOfBounds = true;
+                    this.wantsToGoOutOfBoundsCounter.incrementAndGet();
                 }
             } else {
-                this.wantsToGoOutOfBounds = false;
+                this.wantsToGoOutOfBoundsCounter.set(0);
             }
         }
     }
