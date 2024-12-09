@@ -70,10 +70,10 @@ public class ScreenCapturer implements AutoCloseable, Runnable, Executable {
 
     public ScreenCapturer moveMouse(MouseLocationDelta delta) {
         Point point = getMouseLocation();
-        InterligarUtils.moveMouse(this.robot, new Point(
-            point.x + delta.delX(),
-            point.y + delta.delY()
-        ));
+        this.robot.mouseMove(
+            point.x - delta.delX(),
+            point.y - delta.delY()
+        );
         return this;
     }
 
@@ -88,7 +88,7 @@ public class ScreenCapturer implements AutoCloseable, Runnable, Executable {
 
     private void setCurrentBounds() {
         synchronized (this.boundsLock) {
-            Screen primaryScreen = Screen.getScreens().getFirst();
+            Screen primaryScreen = Screen.getScreens().get(0);
             var rectangleBounds = primaryScreen.getBounds();
             this.minX = rectangleBounds.getMinX();
             this.minY = rectangleBounds.getMinY();
